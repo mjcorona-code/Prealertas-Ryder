@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Prealertas · TMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--navy:#0B2545;--gold:#C9A227;--bg:#F4F6FA;--card:#fff;--txt:#14213D;--mut:#5A6578;--line:#D8DEE9;--ok:#1B7F4B;--bad:#B3261E;--wait:#8A6D00;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1626;--card:#16223A;--txt:#EAF0FB;--mut:#9AA7BD;--line:#2B3A57;--ok:#4CC38A;--bad:#FF8A80;--wait:#E6C34D}}
+:root[data-theme="dark"]{--bg:#0E1626;--card:#16223A;--txt:#EAF0FB;--mut:#9AA7BD;--line:#2B3A57;--ok:#4CC38A;--bad:#FF8A80;--wait:#E6C34D}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{background:var(--navy);color:#fff;padding:14px 16px;border-bottom:4px solid var(--gold)}
+header h1{margin:0;font-size:20px;letter-spacing:.5px}header p{margin:2px 0 0;font-size:13px;opacity:.8}
+nav{display:flex;gap:8px;padding:10px 16px 0;max-width:760px;margin:auto}
+nav button{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:10px 10px 0 0;font-weight:600;cursor:pointer}
+nav button.on{background:var(--gold);color:#111;border-color:var(--gold)}
+main{max-width:760px;margin:auto;padding:0 16px 40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:12px}
+h2{font-size:15px;margin:0 0 10px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px}
+label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+input,select{width:100%;padding:11px;font-size:16px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--txt)}
+input[readonly]{opacity:.85}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.row{grid-template-columns:1fr}}
+.big{font-size:20px;font-weight:700}
+.btn{padding:13px 16px;border:0;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff}
+.btn.gold{background:var(--gold);color:#111}.btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+.btn.sm{padding:8px 12px;font-size:14px}.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.msg{margin-top:8px;font-size:13px}.warn{color:var(--wait)}.err{color:var(--bad)}.okc{color:var(--ok)}
+.chk{display:flex;align-items:center;gap:8px;margin-top:12px}.chk input{width:auto}
+.item{border-top:1px solid var(--line);padding:12px 0}.item:first-child{border-top:0}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700;border:1px solid currentColor}
+.Pendiente{color:var(--wait)}.Validada{color:var(--ok)}.Rechazada{color:var(--bad)}
+.meta{color:var(--mut);font-size:13px}.hide{display:none}
+.tbl{overflow-x:auto}
+</style>
+</head>
+<body>
+<header><h1>PREALERTAS · TMS</h1><p>Circuito Ryder Toyota 2026 · captura y validación para salida a tránsito · <b id="live">Sin conexión (modo local)</b></p></header>
+<nav><button id="t1" class="on">Captura (operador)</button><button id="t2">Validación <span id="cnt"></span></button><button id="t3">Consulta Seguridad</button></nav>
+<main>
+<section id="v1">
+ <div class="card">
+  <h2>Unidad</h2>
+  <label for="unidad">Número de unidad</label>
+  <input id="unidad" list="dl-u" inputmode="numeric" autocomplete="off" placeholder="Ej. 714034">
+  <datalist id="dl-u"></datalist>
+  <div class="row">
+   <div><label>Placas de la unidad</label><input id="placas" autocapitalize="characters"></div>
+   <div><label>Ruta</label><input id="ruta"></div>
+  </div>
+  <div id="umsg" class="msg"></div>
+  <div class="meta">Todos los datos se pueden editar a mano si algo cambió. El validador verá la marca “DATOS EDITADOS”.</div>
+ </div>
+ <div class="card">
+  <h2>Remolque</h2>
+  <div class="row">
+   <div><label for="rem1">Remolque 1</label><input id="rem1" list="dl-r" inputmode="numeric" autocomplete="off"></div>
+   <div><label>Placas remolque 1</label><input id="prem1" autocapitalize="characters"></div>
+  </div>
+  <div class="chk"><input type="checkbox" id="full"><label for="full" style="margin:0">Segundo remolque (FULL)</label></div>
+  <div id="r2" class="row hide">
+   <div><label for="rem2">Remolque 2</label><input id="rem2" list="dl-r" inputmode="numeric" autocomplete="off"></div>
+   <div><label>Placas remolque 2</label><input id="prem2" autocapitalize="characters"></div>
+  </div>
+  <datalist id="dl-r"></datalist>
+  <div id="rmsg" class="msg"></div>
+ </div>
+ <div class="card hide" id="ayc"><h2>Ayudante de operador</h2>
+  <div class="meta">Sin remolque: selecciona al ayudante o escribe el nombre si no está en la lista.</div>
+  <label for="ay">Nombre del ayudante</label><input id="ay" list="dl-a" autocomplete="off" placeholder="Selecciona o escribe">
+  <datalist id="dl-a"></datalist>
+ </div>
+ <div class="card">
+  <h2>Operador 1</h2>
+  <div class="row">
+   <div><label for="op1">Número de empleado</label><input id="op1" list="dl-o" inputmode="numeric" autocomplete="off"></div>
+   <div><label>Nombre</label><input id="n1"></div>
+  </div>
+  <div class="chk"><input type="checkbox" id="dbl"><label for="dbl" style="margin:0">Va en doble (segundo operador)</label></div>
+  <div id="o2" class="hide">
+   <h2 style="margin-top:14px">Operador 2</h2>
+   <div class="row">
+    <div><label for="op2">Número de empleado</label><input id="op2" list="dl-o" inputmode="numeric" autocomplete="off"></div>
+    <div><label>Nombre</label><input id="n2"></div>
+   </div>
+  </div>
+  <datalist id="dl-o"></datalist>
+  <div id="omsg" class="msg"></div>
+ </div>
+ <div class="btns"><button class="btn gold" id="send">Enviar prealerta</button><button class="btn ghost" id="clr">Limpiar</button></div>
+ <div id="smsg" class="msg"></div>
+</section>
+
+<section id="v2" class="hide">
+ <div class="card">
+  <label for="vname">Tu nombre (validador)</label>
+  <input id="vname" placeholder="Quién valida">
+  <div class="btns">
+   <select id="flt" style="width:auto"><option>Todas</option><option>Pendiente</option><option>Validada</option><option>Rechazada</option></select>
+   <button class="btn sm" id="csv">Descargar CSV</button>
+   <button class="btn sm ghost" id="wipe">Borrar todo</button>
+  </div>
+  <div class="meta" style="margin-top:8px">Las prealertas se guardan en este navegador/dispositivo. Para pasarlas a otras personas usa “Copiar” o “Descargar CSV”.</div>
+ </div>
+ <div class="card" id="list"></div>
+</section>
+<section id="v3" class="hide">
+ <div class="card"><label for="sname">Tu nombre (Seguridad Ryder)</label><input id="sname" placeholder="Quién confirma la salida">
+ <label for="q">Buscar (unidad, placas, operador, remolque)</label><input id="q" placeholder="Ej. 714034 o 937FE3">
+ <label for="f3">Mostrar</label><select id="f3"><option value="por">Por salir (validadas)</option><option value="sal">Salida confirmada</option><option value="pen">Pendientes / rechazadas</option><option value="all">Todas</option></select>
+ <div class="meta" style="margin-top:8px">Vista de solo lectura en tiempo real. Solo puedes <b>confirmar la salida</b> de prealertas ya Validadas.</div></div>
+ <div class="card" id="list3"></div>
+</section>
+</main>
+<script>
+const DATA={"units": [{"u": "714034", "placas": "937FE3", "ruta": "CUAUGUAD", "ops": [["3698", "Salgado López Juan"], ["7283", "Juarez Islas Marcos Luis"]], "rem": ["714464"]}, {"u": "714582", "placas": "477FE2", "ruta": "CUAUCUL", "ops": [["3002", "Calva Marquez Javier Fructuoso"], ["2607", "Casillas Palomo Ulises"]], "rem": ["714465"]}, {"u": "714041", "placas": "950FE3", "ruta": "CUAUCUL", "ops": [["5232", "Contreras Cardenas Edgar Raul"], ["450", "Vieyra Lovera Alejandro"]], "rem": ["714469"]}, {"u": "713909", "placas": "638FE2", "ruta": "CUAUMTY FULL", "ops": [["1519", "Ugarte Nuño Eduardo"], ["1973", "Lopez Duran Ernesto"]], "rem": ["714229", "714231"]}, {"u": "713892", "placas": "489FE2", "ruta": "CUAUMTY FULL", "ops": [["1566", "Barron Patiño Enrique"], ["1283", "Mendoza Gutierrez Octavio"]], "rem": ["714055", "714056"]}, {"u": "714599", "placas": "939FE3", "ruta": "SLP-DURANGO", "ops": [["35", "Zapata Alvarado Francisco"], ["4190", "Delgado Arista Victor Alfonso"]], "rem": ["714440"]}, {"u": "714030", "placas": "941FE3", "ruta": "CUAUTAMP", "ops": [["1117", "Cruz Cobix Alberto"], ["1901", "Juarez Perez Marcos Luis"]], "rem": ["714221"]}, {"u": "714652", "placas": "53FB6C", "ruta": "CUAU-LEON-MORELIA-URUAPAN", "ops": [["5455", "Fragoso Torres Jorge Luis"], ["6731", "Rodriguez Muñoz Luis Gabriel"]], "rem": ["714439"]}, {"u": "713898", "placas": "483FE2", "ruta": "CUAUVILL FULL", "ops": [["570", "Malagon Patiño Alfredo"], ["1095", "Perez Estevez Marco"]], "rem": ["714058", "714226"]}, {"u": "713899", "placas": "482FE2", "ruta": "CUAUVILL FULL", "ops": [["2417", "Ramirez Diaz Luis Eduardo"], ["4415", "Heriberto Perez Perez"]], "rem": ["714230", "714223"]}, {"u": "714653", "placas": "38FB5C", "ruta": "PUEOAXSALI", "ops": [["5840", "Rojas Arellano Leonardo Daniel"], ["2753", "Paredes Chino Maximo"]], "rem": ["714227"]}, {"u": "714031", "placas": "764FF3", "ruta": "VILLCAMPMERCANRMCHET", "ops": [["3851", "Cruz Gomez Josue"], ["85", "Cadenas Palma Paul Rafael"]], "rem": ["714225"]}, {"u": "714028", "placas": "943FE3", "ruta": "VILLCAMPMERCANRMCHET", "ops": [["2843", "Garcia Roman Valerio"], ["3904", "Nolasco Arias Adalberto"]], "rem": ["714222"]}, {"u": "714026", "placas": "945FE3", "ruta": "VILLCOATTUXTLATAPA", "ops": [["898", "Zacarias Rivera Jose Angel"], ["3825", "Martinez Corral Josue"]], "rem": ["714224"]}, {"u": "714234", "placas": "160FF2", "ruta": "CUAUACA", "ops": [["756", "Rodriguez Flores Victor Hugo"], ["2635", "Alba Flores Emmanuel"]], "rem": []}, {"u": "714237", "placas": "163FF2", "ruta": "CUAUZARA", "ops": [["5586", "GARCIA PEREZ VICTOR MANUEL"], ["685", "Rosas Cordoba Juan Carlos"]], "rem": []}, {"u": "714243", "placas": "169FF2", "ruta": "CUAUECA", "ops": [["4020", "Hernandez Hernandez Gabriel Miguel"]], "rem": []}, {"u": "714236", "placas": "162FF2", "ruta": "CUAUMAN", "ops": [], "rem": []}, {"u": "714240", "placas": "166FF2", "ruta": "CUAU-QRO-CELAYA-IRAPUATO", "ops": [["4254", "Garcia Falcon José Antonio"], ["1093", "Hernandez Quiroz Daniel"]], "rem": []}, {"u": "714255", "placas": "181FF2", "ruta": "PUEXAL / PUEAPIZ", "ops": [["187", "Ramos Rangel Juan Manuel"], ["971", "Gomez Chiquito Gerardo"]], "rem": []}, {"u": "714247", "placas": "173FF2", "ruta": "PUEXAL / PUEAPIZ", "ops": [], "rem": []}, {"u": "713895", "placas": "486FE2", "ruta": "CUAUTILAREDO", "ops": [["8133", "Gonzalez Hernandez Julio Cesar"], ["8978", "Bargosa Rodriguez Adrian"]], "rem": []}, {"u": "713896", "placas": "485FE2", "ruta": "CUAUTILAREDO", "ops": [["546", "Castellanos Quintero Daniel"], ["146", "Medellin Vidales Jonathan"]], "rem": []}], "ops": {"3698": "Salgado López Juan", "7283": "Juarez Islas Marcos Luis", "3002": "Calva Marquez Javier Fructuoso", "2607": "Casillas Palomo Ulises", "5232": "Contreras Cardenas Edgar Raul", "450": "Vieyra Lovera Alejandro", "1519": "Ugarte Nuño Eduardo", "1973": "Lopez Duran Ernesto", "1566": "Barron Patiño Enrique", "1283": "Mendoza Gutierrez Octavio", "35": "Zapata Alvarado Francisco", "4190": "Delgado Arista Victor Alfonso", "1117": "Cruz Cobix Alberto", "1901": "Juarez Perez Marcos Luis", "5455": "Fragoso Torres Jorge Luis", "6731": "Rodriguez Muñoz Luis Gabriel", "570": "Malagon Patiño Alfredo", "1095": "Perez Estevez Marco", "2417": "Ramirez Diaz Luis Eduardo", "4415": "Heriberto Perez Perez", "5840": "Rojas Arellano Leonardo Daniel", "2753": "Paredes Chino Maximo", "3851": "Cruz Gomez Josue", "85": "Cadenas Palma Paul Rafael", "2843": "Garcia Roman Valerio", "3904": "Nolasco Arias Adalberto", "898": "Zacarias Rivera Jose Angel", "3825": "Martinez Corral Josue", "756": "Rodriguez Flores Victor Hugo", "2635": "Alba Flores Emmanuel", "5586": "GARCIA PEREZ VICTOR MANUEL", "685": "Rosas Cordoba Juan Carlos", "4020": "Hernandez Hernandez Gabriel Miguel", "4254": "Garcia Falcon José Antonio", "1093": "Hernandez Quiroz Daniel", "187": "Ramos Rangel Juan Manuel", "971": "Gomez Chiquito Gerardo", "8133": "Gonzalez Hernandez Julio Cesar", "8978": "Bargosa Rodriguez Adrian", "546": "Castellanos Quintero Daniel", "146": "Medellin Vidales Jonathan"}, "trailers": {"714464": "169YJ9", "714465": "226YJ2", "714469": "226YJ2", "714229": "978YH5", "714231": "980YH5", "714055": "084YH1", "714056": "083YH1", "714440": "752YJ2", "714221": "212YH5", "714439": "751YJ2", "714058": "081YH1", "714226": "207YH5", "714230": "979YH5", "714223": "210YH5", "714227": "206YH5", "714225": "208YH5", "714222": "211YH5", "714224": "209YH5"}};
+const $=id=>document.getElementById(id);
+const U={},T=DATA.trailers,O=DATA.ops;
+DATA.units.forEach(u=>U[u.u.toUpperCase()]=u);
+$('dl-u').innerHTML=DATA.units.map(u=>`<option value="${u.u}">${u.ruta}</option>`).join('');
+$('dl-r').innerHTML=Object.keys(T).map(k=>`<option value="${k}">${T[k]}</option>`).join('');
+const AY=["CANTERO HERNANDEZ RAUL MARTIN","GONZALEZ AGUIRRE SAMUEL","BECERRIL RESENDIZ JUAN RICARDO","RODRIGUEZ CORTES VICTOR EMMANU","MARTINEZ GOMEZ JORGE ISAEL","OREA MUNDO ERIK IVAN","CASTRO FONSECA FERNANDO","VERA ESPINOZA EDUARDO","MONTIEL PEREZ RODRIGO","JOSE LUIS LUNA LIGERO"];
+$('dl-a').innerHTML=AY.map(a=>`<option value="${a}">`).join('');
+function updAy(){$('ayc').classList.toggle('hide',!($('unidad').value.trim()&&!$('rem1').value.trim()))}
+$('dl-o').innerHTML=Object.keys(O).map(k=>`<option value="${k}">${O[k]}</option>`).join('');
+const FB={
+  apiKey: "AIzaSyBIwgAM9kJzMOAssHr0BYAo_S9BLQC4CiY",
+  authDomain: "prealertas-ryder-2026.firebaseapp.com",
+  projectId: "prealertas-ryder-2026",
+  storageBucket: "prealertas-ryder-2026.firebasestorage.app",
+  messagingSenderId: "646977456230",
+  appId: "1:646977456230:web:22e30cbcacf9e5fc0845a7"
+};<-- PEGA AQUI TU CONFIG DE FIREBASE
+
+let db=null;const SOLO=location.hash==='#vista';
+const lv=(ok,t)=>{const e=$('live');e.textContent=t;e.style.color=ok?'#7CE3A6':'#FFD36B'};
+const ld=src=>new Promise((a,b)=>{const s=document.createElement('script');s.src=src;s.onload=a;s.onerror=b;document.head.appendChild(s)});
+async function initFB(){
+ if(!FB.projectId)return;
+ try{
+  await ld('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+  await ld('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js');
+  firebase.initializeApp(FB);db=firebase.firestore();
+  db.collection('prealertas').orderBy('id','desc').limit(300).onSnapshot(s=>{items=s.docs.map(d=>Object.assign({},d.data(),{_k:d.id}));render();lv(true,'EN VIVO')},e=>{lv(false,'Error de conexión');console.error(e)});
+ }catch(e){lv(false,'Sin conexión (modo local)')}
+}
+let LS=null;try{LS=window.localStorage}catch(e){}
+let items=[];try{items=JSON.parse(LS.getItem('prealertas')||'[]')}catch(e){}
+const save=()=>{try{LS.setItem('prealertas',JSON.stringify(items))}catch(e){}};
+const norm=v=>v.trim().toUpperCase();
+function setMsg(id,t,c){const e=$(id);e.textContent=t;e.className='msg '+(c||'')}
+function lookRem(n,pid){const k=n.trim();const p=T[k]||'';$(pid).value=p;return k?!!p:null}
+function lookOp(n,nid){const k=n.trim();const p=O[k]||'';$(nid).value=p;return k?!!p:null}
+function chkRem(){const a=lookRem($('rem1').value,'prem1'),b=$('full').checked?lookRem($('rem2').value,'prem2'):null;
+ const bad=(a===false)||(b===false);setMsg('rmsg',bad?'Remolque no encontrado en inventario: captura las placas a mano.':'',bad?'warn':'')}
+function chkOp(){const a=lookOp($('op1').value,'n1'),b=$('dbl').checked?lookOp($('op2').value,'n2'):null;
+ const bad=(a===false)||(b===false);setMsg('omsg',bad?'Número de empleado no encontrado: captura el nombre a mano.':'',bad?'warn':'')}
+function setFull(v){$('full').checked=v;$('r2').classList.toggle('hide',!v)}
+function setDbl(v){$('dbl').checked=v;$('o2').classList.toggle('hide',!v)}
+$('full').onchange=()=>{setFull($('full').checked);chkRem()};
+$('dbl').onchange=()=>{setDbl($('dbl').checked);chkOp()};
+['rem1','rem2'].forEach(i=>$(i).oninput=chkRem);
+['op1','op2'].forEach(i=>$(i).oninput=chkOp);
+$('unidad').oninput=()=>{
+ const k=norm($('unidad').value),u=U[k];
+ if(!k){['placas','ruta'].forEach(i=>$(i).value='');setMsg('umsg','');return}
+ if(!u){$('placas').value='';$('ruta').value='';setMsg('umsg','Unidad no encontrada en inventario. Captura los datos a mano.','warn');return}
+ $('placas').value=u.placas;$('ruta').value=u.ruta;
+ $('rem1').value=u.rem[0]||'';$('rem2').value=u.rem[1]||'';setFull(u.rem.length>1);
+ $('op1').value=(u.ops[0]||['',''])[0];$('op2').value=(u.ops[1]||['',''])[0];setDbl(u.ops.length>1);
+ chkRem();chkOp();
+ const m=[];if(!u.placas)m.push('sin placas en inventario');if(!u.ops.length)m.push('sin operador asignado');if(u.rem.length&&!u.rem.some(r=>T[r]))m.push('remolque sin placas');
+ setMsg('umsg',m.length?'Ojo: '+m.join(', ')+'.':'Unidad encontrada.',m.length?'warn':'okc');
+};
+function clearForm(){document.querySelectorAll('#v1 input:not([type=checkbox])').forEach(i=>i.value='');setFull(false);setDbl(false);updAy();['umsg','rmsg','omsg','smsg'].forEach(i=>setMsg(i,''))}
+$('unidad').addEventListener('input',updAy);$('rem1').addEventListener('input',updAy);
+$('clr').onclick=clearForm;
+$('send').onclick=()=>{
+ const g=i=>$(i).value.trim();
+ if(!g('unidad')){setMsg('smsg','Falta el número de unidad.','err');return}
+ const U0=U[norm(g('unidad'))];const ayv=$('ayc').classList.contains('hide')?'':g('ay');
+ const mod=!U0||norm(g('placas'))!==U0.placas||g('ruta')!==U0.ruta||g('prem1')!==(T[g('rem1')]||'')||($('full').checked&&g('prem2')!==(T[g('rem2')]||''))||g('n1')!==(O[g('op1')]||'')||($('dbl').checked&&g('n2')!==(O[g('op2')]||''))||(!!ayv&&!AY.some(a=>a.toLowerCase()===ayv.toLowerCase()));
+ const r={id:Date.now(),fecha:new Date().toLocaleString('es-MX'),unidad:g('unidad'),placas:norm(g('placas')),ruta:g('ruta'),
+  rem1:g('rem1'),prem1:norm(g('prem1')),rem2:$('full').checked?g('rem2'):'',prem2:$('full').checked?g('prem2'):'',
+  op1:g('op1'),n1:g('n1'),op2:$('dbl').checked?g('op2'):'',n2:$('dbl').checked?g('n2'):'',
+  manual:mod,ay:ayv,estado:'Pendiente',por:''};
+ if(!r.placas||!r.n1){setMsg('smsg','Faltan placas de la unidad o el operador 1.','err');return}
+ if(db){db.collection('prealertas').add(r).then(()=>{clearForm();setMsg('smsg','Prealerta enviada a validación.','okc')}).catch(()=>setMsg('smsg','No se pudo enviar. Revisa tu conexión e intenta de nuevo.','err'))}
+ else{items.unshift(r);save();render();clearForm();setMsg('smsg','Prealerta enviada (modo local).','okc')}
+};
+function summary(r){return `PREALERTA ${r.fecha}\nUnidad: ${r.unidad} (${r.placas})\nRuta: ${r.ruta}\nRemolque: ${r.rem1} (${r.prem1})${r.rem2?`\nRemolque 2: ${r.rem2} (${r.prem2})`:''}\nOperador 1: ${r.op1} ${r.n1}${r.op2||r.n2?`\nOperador 2: ${r.op2} ${r.n2}`:''}${r.ay?`\nAyudante: ${r.ay}`:''}\nEstado: ${r.estado}${r.por?' por '+r.por:''}`}
+function card(r,ro){const d=document.createElement('div');d.className='item';
+ const t=document.createElement('div');
+ t.innerHTML=`<span class="chip ${r.estado}">${r.salida?'SALIDA CONFIRMADA':r.estado==='Validada'?'Validada · LISTA PARA SALIDA':r.estado}</span> <span class="big"></span> <span class="meta"></span>`;
+ t.children[1].textContent='Unidad '+r.unidad;t.children[2].textContent=r.fecha+(r.por?' · '+r.por:'')+(r.manual?' · DATOS EDITADOS':'')+(r.salida?' · Salida: '+r.salidaPor+' '+r.salidaHora:'');
+ const p=document.createElement('div');p.className='meta';p.style.whiteSpace='pre-line';
+ p.textContent=`Placas ${r.placas} · ${r.ruta}\nRemolque ${r.rem1} ${r.prem1}${r.rem2?' + '+r.rem2+' '+r.prem2:''}\n${r.op1} ${r.n1}${r.n2||r.op2?'\n'+r.op2+' '+r.n2:''}`;
+ if(r.ay)p.textContent+='\nAyudante: '+r.ay;d.append(t,p);
+ if(ro){if(!SOLO&&r.estado==='Validada'&&!r.salida){const bb=document.createElement('div');bb.className='btns';const x=document.createElement('button');x.className='btn gold';x.textContent='Confirmar salida';
+  x.onclick=()=>{const v=$('sname').value.trim();if(!v){alert('Escribe tu nombre (Seguridad Ryder).');return}
+   if(!confirm('¿Confirmar la salida de la unidad '+r.unidad+'?'))return;
+   const u={salida:true,salidaPor:v,salidaHora:new Date().toLocaleString('es-MX')};
+   if(db&&r._k){db.collection('prealertas').doc(r._k).update(u)}else{Object.assign(r,u);save();render()}};bb.appendChild(x);d.appendChild(bb)}
+  else if(r.estado!=='Validada'){const n=document.createElement('div');n.className='meta';n.textContent='Sin autorización de salida.';d.appendChild(n)}
+  return d}
+ const b=document.createElement('div');b.className='btns';
+ [['Validar','Validada','gold'],['Rechazar','Rechazada','ghost']].forEach(([n,e,c])=>{const x=document.createElement('button');x.className='btn sm '+c;x.textContent=n;
+  x.onclick=()=>{const v=$('vname').value.trim();if(!v){alert('Escribe tu nombre de validador.');return}
+   if(db&&r._k){db.collection('prealertas').doc(r._k).update({estado:e,por:v})}else{r.estado=e;r.por=v;save();render()}};b.appendChild(x)});
+ const cp=document.createElement('button');cp.className='btn sm ghost';cp.textContent='Copiar';
+ cp.onclick=async()=>{try{await navigator.clipboard.writeText(summary(r));cp.textContent='Copiado'}catch(e){prompt('Copia el texto:',summary(r))}};b.appendChild(cp);
+ d.appendChild(b);return d}
+function render(){
+ const f=$('flt').value,L=items.filter(r=>f==='Todas'||r.estado===f);
+ $('cnt').textContent='('+items.filter(r=>r.estado==='Pendiente').length+')';
+ $('list').innerHTML=L.length?'':'<div class="meta">No hay prealertas.</div>';
+ L.forEach(r=>$('list').appendChild(card(r,false)));
+ const q=$('q').value.trim().toLowerCase();
+ const m3=$('f3').value;const L3=items.filter(r=>(m3==='all'||(m3==='por'&&r.estado==='Validada'&&!r.salida)||(m3==='sal'&&r.salida)||(m3==='pen'&&r.estado!=='Validada'))&&(!q||[r.unidad,r.placas,r.rem1,r.prem1,r.rem2,r.prem2,r.op1,r.n1,r.op2,r.n2,r.ruta].join(' ').toLowerCase().includes(q)));
+ $('list3').innerHTML=L3.length?'':'<div class="meta">Sin resultados.</div>';
+ L3.forEach(r=>$('list3').appendChild(card(r,true)));
+}
+$('q').oninput=render;$('f3').onchange=render;
+$('flt').onchange=render;
+$('wipe').onclick=()=>{if(db){alert('En modo en vivo no se borra desde aquí.');return}if(confirm('¿Borrar todas las prealertas de este dispositivo?')){items=[];save();render()}};
+$('csv').onclick=async()=>{
+ const H=['fecha','unidad','placas','ruta','remolque1','placas_rem1','remolque2','placas_rem2','empleado1','operador1','empleado2','operador2','estado','validado_por','editado','salida_confirmada','salida_por','ayudante'];
+ const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+ const rows=items.map(r=>[r.fecha,r.unidad,r.placas,r.ruta,r.rem1,r.prem1,r.rem2,r.prem2,r.op1,r.n1,r.op2,r.n2,r.estado,r.por,r.manual?'SI':'',r.salida?r.salidaHora:'',r.salidaPor||'',r.ay||''].map(q).join(','));
+ const data='\ufeff'+[H.join(',')].concat(rows).join('\r\n');
+ try{const d=await claude.use('downloads');if(!d)throw 0;await d.save({filename:'prealertas.csv',data})}catch(e){if(e&&e.code==='declined')return;prompt('Descarga no disponible. Copia el CSV:',data)}
+};
+$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);$('t3').onclick=()=>tab(3);
+function tab(n){[1,2,3].forEach(i=>{$('v'+i).classList.toggle('hide',n!==i);$('t'+i).classList.toggle('on',n===i)});render()}
+if(location.hash==='#consulta'||SOLO){if(SOLO){$('sname').classList.add('hide');document.querySelector('label[for=sname]').classList.add('hide')}['t1','t2','t3'].forEach(i=>$(i).classList.add('hide'));tab(3)}
+render();
+initFB();
+</script>
+</body>
+</html>
